@@ -32,6 +32,7 @@ def sendMessage(message):
 		sk = Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
 		chat = sk.chats[app.config["SKYPE_CHAT_ID"]]
 		chat.sendMsg(message, rich = True)
+		app.logger.info("message sent")
 	except:
 		app.logger.info("send failed")
 		print("connection failed")
