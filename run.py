@@ -46,8 +46,8 @@ def sendMessage(message):
 		app.logger.error(args[1])
 
 	except:
-		app.logger.error("Send Failure")
-		app.logger.error(args)
+		app.logger.error("Generic Send Failure")
+		app.logger.error(sys.exc_info()[0])
 
 if __name__ == "__main__":
 	handler = TimedRotatingFileHandler(
