@@ -1,8 +1,9 @@
 from flask import Flask
 from flask import request
-from skpy import Skype
-import logging
 from logging.handlers import TimedRotatingFileHandler
+import skpy
+import logging
+import sys
 
 app = Flask(__name__)
 app.config.from_pyfile("config.cfg")
@@ -29,13 +30,24 @@ def sendMessage(message):
 
 	try:
 		app.logger.info("attempting to send")
-		sk = Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
+		sk = skpy.Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
 		chat = sk.chats[app.config["SKYPE_CHAT_ID"]]
 		chat.sendMsg(message, rich = True)
 		app.logger.info("message sent")
+
+	except skpy.core.SkypeAuthException, args:
+		app.logger.error("Send Failure: SkypeAuthException")
+		app.logger.error(args[0])
+		app.logger.error(args[1])
+
+	except skpy.core.SkypeApiException, args:
+		app.logger.error("Send Failure: SkypeApiException")
+		app.logger.error(args[0])
+		app.logger.error(args[1])
+
 	except:
-		app.logger.info("send failed")
-		print("connection failed")
+		app.logger.error("Send Failure")
+		app.logger.error(args)
 
 if __name__ == "__main__":
 	handler = TimedRotatingFileHandler(
