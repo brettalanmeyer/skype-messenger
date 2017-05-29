@@ -19,20 +19,30 @@ def send():
 
 	app.logger.info("send called")
 
-	if "message" in request.form:
-		message = request.form["message"]
-		sendMessage(message)
+	if "message" not in request.form:
+		return "message not correctly sent", 400
 
-	return "done"
+	if "recipients" not in request.form:
+		return "receipients not correctly sent", 400
 
-def sendMessage(message):
+	message = request.form["message"]
+	recipients = request.form.getlist("recipients")
+
+	sendMessage(message, recipients)
+
+	return "done", 201
+
+def sendMessage(message, recipients):
 	app.logger.info("message=%s", message)
 
 	try:
 		app.logger.info("attempting to send")
 		sk = skpy.Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
-		chat = sk.chats[app.config["SKYPE_CHAT_ID"]]
-		chat.sendMsg(message, rich = True)
+
+		for recipient in recipients:
+			chat = sk.chats[recipient]
+			chat.sendMsg(message, rich = True)
+
 		app.logger.info("message sent")
 
 	except skpy.core.SkypeAuthException, args:
