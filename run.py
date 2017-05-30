@@ -36,10 +36,12 @@ def sendMessage(message, recipients):
 	app.logger.info("message=%s", message)
 
 	try:
-		app.logger.info("attempting to send")
+		app.logger.info("attempting to connect...")
 		sk = skpy.Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
+		app.logger.info("connection established")
 
 		for recipient in recipients:
+			app.logger.info("sending to=%s", recipient)
 			chat = sk.chats[recipient]
 			chat.sendMsg(message, rich = True)
 
