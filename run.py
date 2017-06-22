@@ -37,6 +37,11 @@ def sendMessage(message, recipients):
 	app.logger.info("message=%s", message)
 
 	try:
+		sk.conn.readToken()
+	except SkypeAuthException:
+		connect()
+
+	try:
 		for recipient in recipients:
 			app.logger.info("sending to=%s", recipient)
 			chat = sk.chats[recipient]
@@ -58,6 +63,11 @@ def sendMessage(message, recipients):
 		app.logger.error("Generic Send Failure")
 		app.logger.error(sys.exc_info()[0])
 
+def connect():
+	app.logger.info("Attempting to connect...")
+	sk.conn.setUserPwd(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
+	sk.conn.getSkypeToken()
+	app.logger.info("Connection established")
 
 if __name__ == "__main__":
 	handler = TimedRotatingFileHandler(
@@ -70,8 +80,8 @@ if __name__ == "__main__":
 	app.logger.addHandler(handler)
 	app.logger.setLevel(logging.INFO)
 
-	app.logger.info("Attempting to connect...")
-	sk = Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
-	app.logger.info("Connection established")
+	sk = Skype()
+	sk.conn.setTokenFile(".tokens-app")
+	connect()
 
 	app.run(debug = app.config["DEBUG"], host = app.config["HOST"], port = app.config["PORT"])

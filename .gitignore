@@ -1,3 +1,4 @@
 *.pyc
 config.cfg
 skype.log
+.tokens-app
