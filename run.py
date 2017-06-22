@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request
 from logging.handlers import TimedRotatingFileHandler
+from skpy import Skype
 import skpy
 import logging
 import sys
@@ -36,10 +37,6 @@ def sendMessage(message, recipients):
 	app.logger.info("message=%s", message)
 
 	try:
-		app.logger.info("attempting to connect...")
-		sk = skpy.Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
-		app.logger.info("connection established")
-
 		for recipient in recipients:
 			app.logger.info("sending to=%s", recipient)
 			chat = sk.chats[recipient]
@@ -61,6 +58,7 @@ def sendMessage(message, recipients):
 		app.logger.error("Generic Send Failure")
 		app.logger.error(sys.exc_info()[0])
 
+
 if __name__ == "__main__":
 	handler = TimedRotatingFileHandler(
 		app.config["LOG_FILE"],
@@ -71,5 +69,9 @@ if __name__ == "__main__":
 	handler.setFormatter(logging.Formatter(app.config["LOG_FORMAT"]))
 	app.logger.addHandler(handler)
 	app.logger.setLevel(logging.INFO)
+
+	app.logger.info("Attempting to connect...")
+	sk = Skype(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
+	app.logger.info("Connection established")
 
 	app.run(debug = app.config["DEBUG"], host = app.config["HOST"], port = app.config["PORT"])
