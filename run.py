@@ -38,7 +38,10 @@ def sendMessage(message, recipients):
 
 	try:
 		sk.conn.readToken()
-	except SkypeAuthException:
+	except skpy.core.SkypeAuthException, args:
+		app.logger.error("ReadToken exception. Attempting to reconnect.")
+		app.logger.error(args[0])
+		app.logger.error(args[1])
 		connect()
 
 	try:
