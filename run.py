@@ -40,8 +40,7 @@ def sendMessage(message, recipients):
 		sk.conn.readToken()
 	except skpy.core.SkypeAuthException, args:
 		app.logger.error("ReadToken exception. Attempting to reconnect.")
-		app.logger.error(args[0])
-		app.logger.error(args[1])
+		app.logger.error(args)
 		connect()
 
 	try:
@@ -54,13 +53,11 @@ def sendMessage(message, recipients):
 
 	except skpy.core.SkypeAuthException, args:
 		app.logger.error("Send Failure: SkypeAuthException")
-		app.logger.error(args[0])
-		app.logger.error(args[1])
+		app.logger.error(args)
 
 	except skpy.core.SkypeApiException, args:
 		app.logger.error("Send Failure: SkypeApiException")
-		app.logger.error(args[0])
-		app.logger.error(args[1])
+		app.logger.error(args)
 
 	except:
 		app.logger.error("Generic Send Failure")
