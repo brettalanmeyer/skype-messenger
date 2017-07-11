@@ -37,16 +37,19 @@ def sendMessage(message, recipients):
 	app.logger.info("message=%s", message)
 
 	try:
-		sk.conn.readToken()
+		app.skype.conn.readToken()
 	except skpy.core.SkypeAuthException, args:
 		app.logger.error("ReadToken exception. Attempting to reconnect.")
 		app.logger.error(args)
+		connect()
+	except:
+		app.logger.error("Could not read token exception. Attempting to reconnect.")
 		connect()
 
 	try:
 		for recipient in recipients:
 			app.logger.info("sending to=%s", recipient)
-			chat = sk.chats[recipient]
+			chat = app.skype.chats[recipient]
 			chat.sendMsg(message, rich = True)
 
 		app.logger.info("message sent")
@@ -64,9 +67,13 @@ def sendMessage(message, recipients):
 		app.logger.error(sys.exc_info()[0])
 
 def connect():
+	app.logger.info("Initializing Skype...")
+	app.skype = Skype()
+	app.skype.conn.setTokenFile(".tokens-app")
+
 	app.logger.info("Attempting to connect...")
-	sk.conn.setUserPwd(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
-	sk.conn.getSkypeToken()
+	app.skype.conn.setUserPwd(app.config["SKYPE_ACCOUNT_USERNAME"], app.config["SKYPE_ACCOUNT_PASSWORD"])
+	app.skype.conn.getSkypeToken()
 	app.logger.info("Connection established")
 
 if __name__ == "__main__":
@@ -80,8 +87,6 @@ if __name__ == "__main__":
 	app.logger.addHandler(handler)
 	app.logger.setLevel(logging.INFO)
 
-	sk = Skype()
-	sk.conn.setTokenFile(".tokens-app")
 	connect()
 
 	app.run(debug = app.config["DEBUG"], host = app.config["HOST"], port = app.config["PORT"])
